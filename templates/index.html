@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>passai</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Favicon will be set dynamically by JavaScript -->
+    <link rel="icon" id="favicon" href="{{ url_for('static', filename='dark_logo.svg') }}" type="image/svg+xml">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            position: relative;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 8px;
+            font-size: 2rem;
+            font-weight: 300;
+            color: #ffffff;
+            letter-spacing: -0.025em;
+        }
+
+        .subtitle {
+            text-align: center;
+            margin-top: 18px;
+            margin-bottom: 32px;
+            color: #666666;
+            font-size: 0.9rem;
+            font-weight: 400;
+        }
+
+        .footer {
+            background: rgba(10, 10, 10, 0.9);
+            border-top: 1px solid #222222;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-size: 0.8rem;
+            color: #666666;
+            margin-top: 32px;
+        }
+
+        .footer a {
+            color: #666666;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            transition: color 0.2s ease;
+        }
+
+        .footer a:hover {
+            color: #999999;
+        }
+
+        .footer svg {
+            width: 16px;
+            height: 16px;
+            margin-right: 6px;
+        }
+
+        .input-container {
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 80px;
+            max-height: 200px;
+            padding: 16px;
+            background: #1a1a1a;
+            border: 2px solid #333333;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 15px;
+            font-family: inherit;
+            resize: none;
+            transition: all 0.3s ease;
+            outline: none;
+            overflow-y: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: #222 #1a1a1a;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        textarea:focus {
+            border-color: #555555;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+
+        textarea::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        textarea::-webkit-scrollbar-thumb {
+            background: #222;
+            border-radius: 4px;
+        }
+
+        textarea::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+
+        .password-display {
+            background: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            font-size: 16px;
+            color: #ffffff;
+            min-height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            word-break: break-all;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            pointer-events: none;
+            user-select: none;
+            cursor: default;
+            overflow: hidden;
+        }
+
+        .password-display:hover {
+            border-color: #555555;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .password-display.empty {
+            font-family: inherit;
+        }
+
+        .password-display.transitioning {
+            border-color: #444444;
+        }
+
+        .password-text {
+            opacity: 1;
+            transition: 
+                opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                font-family 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                color 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                letter-spacing 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transform: skew(-8deg, 0) scale(0.98);
+            font-family: inherit;
+            color: #666666;
+            letter-spacing: 0.02em;
+        }
+
+        .password-display:not(.empty) .password-text {
+            transform: skew(0deg, 0) scale(1);
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            color: #ffffff;
+            letter-spacing: 0.05em;
+        }
+
+        .password-text.hide {
+            opacity: 0;
+            transform: skew(-8deg, 0) scale(0.95);
+        }
+
+        .password-text.show {
+            opacity: 1;
+        }
+
+        .password-text.transitioning {
+            transition: 
+                opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .copied-toast {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #aaaaaa;
+            font-size: 14px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            margin: 0;
+            white-space: nowrap;
+            animation: toastFadeIn 0.3s ease-out;
+        }
+
+        .copied-toast.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        @keyframes toastFadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .status-container {
+            position: relative;
+            height: 24px;
+            margin: 12px 0;
+        }
+
+        .loading {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            width: 12px;
+            height: 12px;
+            background: #666666;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .loading.show ~ .copied-toast {
+            opacity: 0 !important;
+            visibility: hidden !important;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 0.4;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+        }
+
+        .error {
+            background: linear-gradient(135deg, #2a1a1a, #1a0a0a);
+            border: 1px solid #aa4444;
+            color: #ffcccc;
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin: 16px 0;
+            font-size: 14px;
+            text-align: center;
+            display: none;
+            position: relative;
+            box-shadow: 0 4px 16px rgba(170, 68, 68, 0.1);
+            animation: errorSlideIn 0.3s ease-out;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .error::before {
+            content: '⚠️';
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+        }
+
+        @keyframes errorSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 16px;
+            }
+            
+            .container {
+                max-width: 100%;
+            }
+            
+            h1 {
+                font-size: 1.75rem;
+            }
+            
+            textarea {
+                min-height: 64px;
+                max-height: 160px;
+                padding: 12px;
+                font-size: 16px;
+                border-radius: 6px;
+            }
+            
+            .password-display {
+                padding: 16px;
+                font-size: 15px;
+                border-radius: 6px;
+            }
+
+            .footer {
+                padding: 8px 16px;
+                font-size: 0.75rem;
+                margin-top: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <div class="container">
+            <h1>passai</h1>
+            <p class="subtitle">describe your requirements</p>
+
+            <div class="input-container">
+                <textarea 
+                    id="userInput" 
+                    placeholder="e.g., 'strong 16 characters' or '4 word passphrase'"
+                    autofocus
+                ></textarea>
+            </div>
+
+            <div class="status-container">
+                <div class="loading" id="loading"></div>
+                <div class="copied-toast" id="copiedToast">copied</div>
+            </div>
+
+            <div class="error" id="error"></div>
+
+            <div class="password-display empty" id="passwordDisplay">
+                <span class="password-text" id="passwordText">your password will appear here</span>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <a href="https://github.com" target="_blank" rel="noopener noreferrer">github</a>
+        <span>•</span>
+        <span>not guaranteed</span>
+    </footer>
+
+    <script>
+        // Set favicon based on color scheme
+        function setFavicon() {
+            const favicon = document.getElementById('favicon');
+            const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            if (isDarkMode) {
+                // Dark theme: use light logo for contrast
+                favicon.href = "{{ url_for('static', filename='light_logo.svg') }}";
+            } else {
+                // Light theme: use dark logo for contrast
+                favicon.href = "{{ url_for('static', filename='dark_logo.svg') }}";
+            }
+        }
+
+        // Set favicon on page load
+        setFavicon();
+
+        // Listen for color scheme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', setFavicon);
+
+        let timeoutId;
+        const userInput = document.getElementById('userInput');
+        const passwordDisplay = document.getElementById('passwordDisplay');
+        const passwordText = document.getElementById('passwordText');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const copiedToast = document.getElementById('copiedToast');
+
+        function hideError() {
+            error.classList.remove('show');
+        }
+
+        function showError(message) {
+            error.textContent = message;
+            error.classList.add('show');
+        }
+
+        function showLoading() {
+            loading.classList.add('show');
+            hideError();
+            // Hide copied toast when loading starts
+            copiedToast.classList.remove('show');
+        }
+
+        function hideLoading() {
+            loading.classList.remove('show');
+        }
+
+        function showCopiedIndicator() {
+            copiedToast.classList.add('show');
+            setTimeout(() => {
+                copiedToast.classList.remove('show');
+            }, 1500);
+        }
+
+        function copyToClipboard(text) {
+            const activeElement = document.activeElement;
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            if (activeElement === userInput) {
+                userInput.focus();
+            }
+        }
+
+        async function generatePassword(input) {
+            if (!input.trim()) {
+                // Transition back to placeholder
+                transitionToPlaceholder();
+                hideLoading();
+                hideError();
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ input: input })
+                });
+
+                const data = await response.json();
+                hideLoading();
+
+                if (data.error) {
+                    showError(data.error);
+                    transitionToPlaceholder();
+                } else {
+                    hideError();
+                    transitionToPassword(data.password);
+                    copyToClipboard(data.password);
+                    showCopiedIndicator();
+                }
+            } catch (err) {
+                hideLoading();
+                showError('failed to generate password. please try again.');
+                console.error('Error:', err);
+            }
+        }
+
+        function transitionToPlaceholder() {
+            const wasEmpty = passwordDisplay.classList.contains('empty');
+            
+            if (!wasEmpty) {
+                // Password to placeholder transition
+                passwordDisplay.classList.add('transitioning');
+                passwordText.classList.add('transitioning');
+                passwordText.classList.add('hide');
+                passwordText.classList.remove('show');
+                
+                setTimeout(() => {
+                    passwordText.textContent = 'your password will appear here';
+                    passwordDisplay.classList.add('empty');
+                    passwordDisplay.classList.remove('transitioning');
+                    passwordText.classList.remove('transitioning');
+                    passwordText.classList.remove('hide');
+                    passwordText.classList.remove('show');
+                }, 250);
+            } else {
+                // Already placeholder, just update text if needed
+                passwordText.textContent = 'your password will appear here';
+                passwordText.classList.remove('hide', 'show');
+            }
+        }
+
+        function transitionToPassword(password) {
+            const wasEmpty = passwordDisplay.classList.contains('empty');
+            
+            if (wasEmpty) {
+                // Placeholder to password transition
+                passwordDisplay.classList.add('transitioning');
+                passwordText.classList.add('transitioning');
+                passwordText.classList.add('hide');
+                
+                setTimeout(() => {
+                    passwordText.textContent = password;
+                    passwordDisplay.classList.remove('empty');
+                    passwordText.classList.remove('hide');
+                    passwordText.classList.add('show');
+                    
+                    setTimeout(() => {
+                        passwordDisplay.classList.remove('transitioning');
+                        passwordText.classList.remove('transitioning');
+                    }, 300);
+                }, 150);
+            } else {
+                // Password to password transition
+                passwordDisplay.classList.add('transitioning');
+                passwordText.classList.add('transitioning');
+                passwordText.classList.add('hide');
+                passwordText.classList.remove('show');
+                
+                setTimeout(() => {
+                    passwordText.textContent = password;
+                    passwordText.classList.remove('hide');
+                    passwordText.classList.add('show');
+                    
+                    setTimeout(() => {
+                        passwordDisplay.classList.remove('transitioning');
+                        passwordText.classList.remove('transitioning');
+                    }, 300);
+                }, 250);
+            }
+        }
+
+        userInput.addEventListener('input', function() {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                generatePassword(this.value);
+            }, 1000);
+            
+            this.style.height = 'auto';
+            const maxHeight = window.innerWidth <= 640 ? 160 : 200;
+            const newHeight = Math.min(this.scrollHeight, maxHeight);
+            this.style.height = newHeight + 'px';
+            
+            if (this.scrollHeight > maxHeight) {
+                this.style.overflowY = 'auto';
+            } else {
+                this.style.overflowY = 'hidden';
+            }
+        });
+    </script>
+</body>
+</html>
