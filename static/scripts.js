@@ -3,12 +3,65 @@
  * Handles UI interactions, API calls, and visual feedback
  */
 
+class ThemeManager {
+	constructor() {
+		this.themeSwitcher = document.getElementById("theme-switcher");
+		this.favicon = document.getElementById("favicon");
+		this.init();
+	}
+
+	init() {
+		this.themeSwitcher.addEventListener("click", () => this.toggleTheme());
+		window
+			.matchMedia("(prefers-color-scheme: dark)")
+			.addEventListener("change", (e) => {
+				const newTheme = e.matches ? "dark" : "light";
+				this.setTheme(newTheme);
+			});
+
+		this.loadTheme();
+	}
+
+	loadTheme() {
+		const storedTheme = localStorage.getItem("theme");
+		if (storedTheme) {
+			this.setTheme(storedTheme);
+		} else {
+			const preferredTheme = window.matchMedia("(prefers-color-scheme: dark)")
+				.matches
+				? "dark"
+				: "light";
+			this.setTheme(preferredTheme);
+		}
+	}
+
+	setTheme(theme) {
+		document.documentElement.setAttribute("data-theme", theme);
+		localStorage.setItem("theme", theme);
+		this.updateFavicon(theme);
+	}
+
+	toggleTheme() {
+		const currentTheme = document.documentElement.getAttribute("data-theme");
+		const newTheme = currentTheme === "dark" ? "light" : "dark";
+		this.setTheme(newTheme);
+	}
+
+	updateFavicon(theme) {
+		if (theme === "dark") {
+			this.favicon.href = "/static/light_logo.svg";
+		} else {
+			this.favicon.href = "/static/dark_logo.svg";
+		}
+	}
+}
+
 class PassAI {
 	constructor() {
 		this.timeoutId = null;
 		this.initializeElements();
 		this.setupEventListeners();
-		this.setFavicon();
+		this.themeManager = new ThemeManager();
 	}
 
 	/**
@@ -21,7 +74,6 @@ class PassAI {
 		this.loading = document.getElementById("loading");
 		this.error = document.getElementById("error");
 		this.copiedToast = document.getElementById("copiedToast");
-		this.favicon = document.getElementById("favicon");
 	}
 
 	/**
@@ -32,28 +84,6 @@ class PassAI {
 		this.userInput.addEventListener("input", (event) => {
 			this.handleUserInput(event);
 		});
-
-		// Listen for color scheme changes
-		window
-			.matchMedia("(prefers-color-scheme: dark)")
-			.addEventListener("change", () => this.setFavicon());
-	}
-
-	/**
-	 * Set favicon based on user's color scheme preference
-	 */
-	setFavicon() {
-		const isDarkMode = window.matchMedia(
-			"(prefers-color-scheme: dark)",
-		).matches;
-
-		if (isDarkMode) {
-			// Dark theme: use light logo for contrast
-			this.favicon.href = "/static/light_logo.svg";
-		} else {
-			// Light theme: use dark logo for contrast
-			this.favicon.href = "/static/dark_logo.svg";
-		}
 	}
 
 	/**
