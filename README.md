@@ -9,7 +9,8 @@ AI-powered password and passphrase generator with natural language input.
 </p>
 </div>
 
-[https://opensource.org/licenses/MIT](https://opensource.org/licenses/MIT)
+![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 -----
 
