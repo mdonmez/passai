@@ -107,7 +107,7 @@ The application will be available at `http://127.0.0.1:5000`.
 
 **Demo:**
 
-You can try the live demo at: [https://passai.onrender.com/](https://passai.onrender.com/)
+You can try the live demo at: [https://dub.sh/passai/](https://dub.sh/passai/)
 
 ### 2. Example Integration
 
