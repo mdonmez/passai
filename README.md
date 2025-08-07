@@ -1,6 +1,6 @@
 <div style="text-align: center;" align="center">
 <a href="https://github.com/mdonmez/passai">
-<img src="static/dark_logo.svg" alt="Logo" width="70" height="70">
+<img src="static/light_logo.svg" alt="Logo" width="70" height="70">
 </a>
 <br>
 <h1>passai</h1>
