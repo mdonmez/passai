@@ -1,11 +1,27 @@
-from typing import Literal
+"""
+Password and Passphrase Generator
+
+A secure generator for creating customizable passwords and passphrases
+with various character sets, constraints, and accessibility options.
+"""
+
 import secrets
 import string
 from pathlib import Path
+from typing import Literal
 
 
 class PassGenerator:
+    """
+    A secure password and passphrase generator with customizable options.
+
+    This class provides methods to generate passwords and passphrases with
+    specific requirements including character types, minimum counts, and
+    accessibility preferences.
+    """
+
     def __init__(self):
+        """Initialize the password generator."""
         pass
 
     def generate_password(
@@ -38,6 +54,9 @@ class PassGenerator:
 
         Returns:
             A generated password string.
+
+        Raises:
+            ValueError: If length is invalid or requirements cannot be met.
         """
         if include is None:
             include = []
@@ -97,13 +116,11 @@ class PassGenerator:
 
         # Check if we have enough character types for minimum requirements
         min_chars_needed = 0
-        min_params = []
         for param in [uppercase, lowercase, numbers, special_characters]:
             enabled = param[0]
             min_count = param[1]
             if enabled and min_count > 0:
                 min_chars_needed += min_count
-                min_params.append((param, min_count))
 
         if min_chars_needed > length:
             # Try to auto-correct by reducing min_count for non-numbers to 0 if possible
