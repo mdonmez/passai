@@ -93,14 +93,15 @@ Copy the `.env.example` file to a new file named `.env`:
 ```bash
 cp .env.example .env
 ```
-Open the `.env` file and add your LLM API key:
+Open the `.env` file and add your LLM MODEL ([LiteLLM](https://docs.litellm.ai/docs/providers)) & LLM API key:
 ```
+LLM_MODEL=your_llm_model_here
 API_KEY=your_api_key_here
 ```
 
 **4. Run the application:**
 ```bash
-uv run app.py
+uv run -m app
 ```
 The application will be available at `http://127.0.0.1:5000`.
 
