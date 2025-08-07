@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>passai</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    
+
     <!-- Favicon will be set dynamically by JavaScript -->
     <link rel="icon" id="favicon" href="{{ url_for('static', filename='dark_logo.svg') }}" type="image/svg+xml">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
+
 <body>
     <div class="main-content">
         <div class="container">
@@ -20,11 +22,8 @@
             <p class="subtitle">describe your requirements</p>
 
             <div class="input-container">
-                <textarea 
-                    id="userInput" 
-                    placeholder="e.g., 'strong 16 characters' or '4 word passphrase'"
-                    autofocus
-                ></textarea>
+                <textarea id="userInput" placeholder="e.g., 'strong 16 characters' or '4 word passphrase'"
+                    autofocus></textarea>
             </div>
 
             <div class="status-container">
@@ -43,11 +42,13 @@
     <footer class="footer">
         <a href="https://github.com/mdonmez/passgen" target="_blank" rel="noopener noreferrer">github</a>
         <span>•</span>
-        <a href="https://github.com/mdonmez/passai/blob/master/LICENSE" target="_blank" rel="noopener noreferrer">mit licensed</a>
+        <a href="https://github.com/mdonmez/passai/blob/master/LICENSE" target="_blank" rel="noopener noreferrer">mit
+            licensed</a>
         <span>•</span>
         <span>not guaranteed</span>
     </footer>
 
     <script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </body>
+
 </html>
