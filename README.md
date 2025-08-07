@@ -1,56 +1,74 @@
 # PasaiGen - AI Password Generator
 
-An AI-powered password and passphrase generator that understands natural language descriptions.
+An AI-powered password and passphrase generator that understands natural language descriptions and creates secure passwords through an intuitive web interface.
 
 ## Features
 
-- 🎯 Natural language input - describe what you need in plain English
-- 🔐 Strong password generation with customizable character sets
-- 📚 Passphrase generation with word-based security
-- ⚡ Easy-to-read or easy-to-type options
-- 🛡️ Secure random generation using cryptographic functions
-- 🌐 Beautiful Streamlit web interface
+- 🎯 **Natural Language Input** - Simply describe what you need in plain English
+- 🔐 **Strong Password Generation** - Customizable character sets and complexity
+- 📚 **Passphrase Generation** - Word-based security with configurable separators
+- ⚡ **Accessibility Options** - Easy-to-read or easy-to-type modes
+- 🛡️ **Cryptographically Secure** - Uses secure random generation
+- 🌐 **Modern Web Interface** - Clean, responsive Flask-based UI
+- 🤖 **AI-Powered** - Understands complex password requirements
 
-## Installation
+## Quick Start
 
-1. Clone the repository
-2. Install dependencies using uv:
+1. **Clone and Install**
    ```bash
-   uv sync
+   git clone <repository-url>
+   cd passgen
+   pip install flask instructor[litellm] litellm python-dotenv streamlit
    ```
 
-3. Create a `.env` file with your API key:
+2. **Configure API**
+   Create a `.env` file with your API key:
    ```
    API_KEY=your_api_key_here
    ```
 
-## Usage
+3. **Run Web Interface**
+   ```bash
+   python flask_app.py
+   ```
+   
+   Open your browser to `http://localhost:5000`
 
-### Web Interface (Streamlit)
-Run the interactive web interface:
+## Usage Examples
+
+Simply describe your password requirements in natural language:
+
+- *"Generate a 16-character password with uppercase, lowercase, numbers, and symbols that's easy to type"*
+- *"Create a passphrase with 4 words separated by dashes"*
+- *"Make a strong 20-character password for my bank account"*
+- *"Generate a gaming password that's 12 characters with numbers"*
+- *"Simple PIN with 6 digits"*
+- *"Corporate password, 15 chars, all types, easy to read"*
+
+## Alternative Interfaces
+
+### Streamlit Web App
+For an alternative web interface:
 ```bash
-uv run streamlit run streamlit_app.py
+streamlit run streamlit_app.py
 ```
-
-Then open your browser to `http://localhost:8501`
+Then open `http://localhost:8501`
 
 ### Command Line
-Run the original command-line version:
+For direct command-line usage:
 ```bash
-uv run python app.py
+python app.py
 ```
-
-## Examples
-
-You can describe your password needs in natural language:
-
-- "Generate a 16-character password with uppercase, lowercase, numbers, and symbols that's easy to type"
-- "Create a passphrase with 4 words separated by dashes"
-- "Make a strong 20-character password for my bank account"
-- "Generate a gaming password that's 12 characters with numbers"
 
 ## Requirements
 
-- Python 3.12+
-- API key for the LLM service
-- Internet connection for AI processing
+- **Python 3.12+**
+- **LLM API Key** (for AI processing)
+- **Internet Connection** (for AI requests)
+
+## How It Works
+
+1. **Describe** your password needs in natural language
+2. **AI Processing** converts your description to technical parameters
+3. **Secure Generation** creates cryptographically strong passwords
+4. **Instant Results** with automatic clipboard copying (web interface)
