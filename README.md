@@ -72,3 +72,24 @@ python app.py
 2. **AI Processing** converts your description to technical parameters
 3. **Secure Generation** creates cryptographically strong passwords
 4. **Instant Results** with automatic clipboard copying (web interface)
+
+## Operation Logic: Under the Hood
+
+PasaiGen seamlessly translates your plain English request into a secure password or passphrase by following a precise, multi-step process:
+
+1.  **Natural Language Input**: Your request (e.g., *"a 15-character password for my bank that's easy to read"*) is sent to the backend.
+2.  **AI Instruction**: The system loads a detailed instruction prompt from `data/llm_instruction.md`. This prompt guides the Large Language Model (LLM) on how to interpret the request and what kind of structured data to return.
+3.  **Structured AI Processing**: Using the `instructor` and `litellm` libraries, the request is sent to the LLM. `instructor` forces the LLM to respond with a clean, validated JSON object that conforms to the Pydantic models in `data/models.py`. This is the core of the AI translation, turning your text into a machine-readable format like:
+    ```json
+    {
+      "type": "password",
+      "password": {
+        "length": 15,
+        "easy_to": "read"
+      }
+    }
+    ```
+4.  **Parameter Dispatch**: The application inspects the `type` field from the AI's response. It then dispatches the structured parameters to the appropriate function in `pass_generator.py`—either `generate_password` or `generate_passphrase`.
+5.  **Cryptographically Secure Generation**: The `PassGenerator` class uses Python's `secrets` module to build the final output. This module is specifically designed for generating cryptographically strong random numbers, ensuring that character and word selection is unpredictable and secure.
+6.  **Constraint Enforcement**: The generator strictly adheres to all parameters received from the AI, such as length, character types (uppercase, numbers, etc.), minimum counts, and accessibility options (`easy_to_read` or `easy_to_type`), which intelligently filter out ambiguous characters like '1', 'l', and 'I'.
+7.  **Final Output**: The resulting secure password or passphrase is sent back to the user interface.
