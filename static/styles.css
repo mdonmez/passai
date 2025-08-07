@@ -99,7 +99,7 @@ h1 {
 
 /* Footer */
 .footer {
-	background: rgba(10, 10, 10, 0.9);
+	background: var(--footer-bg-color);
 	border-top: 1px solid var(--border-color);
 	padding: 12px 24px;
 	display: flex;
