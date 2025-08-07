@@ -74,6 +74,7 @@ sequenceDiagram
   * Python >=3.12
   * An API Key from an LLM provider supported by [LiteLLM](https://litellm.ai/). This project is pre-configured for Google's Gemini models.
 
+
 ### 1. Running the Project
 
 **1. Clone the repository:**
@@ -82,13 +83,10 @@ git clone https://github.com/mdonmez/passai.git
 cd passai
 ```
 
-**2. Create a virtual environment and install dependencies:**
+**2. Install dependencies with [uv](https://github.com/astral-sh/uv):**
 ```bash
-python -m venv .venv
-source .venv/bin/activate  # On Windows, use `.venv\Scripts\activate`
-pip install -r requirements.txt # You might need to create this from pyproject.toml
+uv sync
 ```
-*(Note: A `requirements.txt` is not provided. You can install dependencies directly from `pyproject.toml` if you have a modern pip, or create a `requirements.txt` file.)*
 
 **3. Configure your environment:**
 Copy the `.env.example` file to a new file named `.env`:
@@ -102,9 +100,13 @@ API_KEY=your_api_key_here
 
 **4. Run the application:**
 ```bash
-python app.py
+uv run app.py
 ```
 The application will be available at `http://127.0.0.1:5000`.
+
+**Demo:**
+
+You can try the live demo at: [https://passai.onrender.com/](https://passai.onrender.com/)
 
 ### 2. Example Integration
 
