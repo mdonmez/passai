@@ -83,7 +83,7 @@ class PassAI {
 		textarea.style.height = "auto";
 		const maxHeight = window.innerWidth <= 640 ? 160 : 200;
 		const newHeight = Math.min(textarea.scrollHeight, maxHeight);
-		textarea.style.height = `${newHeight}px`;
+		textarea.style.height = newHeight + "px";
 
 		if (textarea.scrollHeight > maxHeight) {
 			textarea.style.overflowY = "auto";
