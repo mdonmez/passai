@@ -4,15 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>passai</title>
+    <meta name="description" content="AI-powered password and passphrase generator with natural language input">
+    <title>passai - AI Password Generator</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     <!-- Favicon will be set dynamically by JavaScript -->
-    <link rel="icon" id="favicon" href="{{ url_for('static', filename='dark_logo.svg') }}" type="image/svg+xml">
+    <link rel="icon" id="favicon" href="/static/dark_logo.svg" type="image/svg+xml">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
 
 <body>
@@ -48,7 +49,7 @@
         <span>not guaranteed</span>
     </footer>
 
-    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+    <script src="/static/scripts.js" defer></script>
 </body>
 
 </html>

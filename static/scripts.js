@@ -1,276 +1,279 @@
-/**
- * Pass Generator Application JavaScript
- * Handles UI interactions, API calls, and visual feedback
- */
-
 class PassAI {
-	constructor() {
-		this.timeoutId = null;
-		this.initializeElements();
-		this.setupEventListeners();
-		this.setFavicon();
-	}
+  #keyPair = null;
+  #timeoutId = null;
 
-	/**
-	 * Initialize DOM element references
-	 */
-	initializeElements() {
-		this.userInput = document.getElementById("userInput");
-		this.passDisplay = document.getElementById("passDisplay");
-		this.passText = document.getElementById("passText");
-		this.loading = document.getElementById("loading");
-		this.error = document.getElementById("error");
-		this.copiedToast = document.getElementById("copiedToast");
-		this.favicon = document.getElementById("favicon");
-	}
+  constructor() {
+    this.initializeElements();
+    this.setupEventListeners();
+    this.setFavicon();
+    this.generateKeyPair();
+  }
 
-	/**
-	 * Set up event listeners for the application
-	 */
-	setupEventListeners() {
-		// Handle user input with debouncing
-		this.userInput.addEventListener("input", (event) => {
-			this.handleUserInput(event);
-		});
+  async generateKeyPair() {
+    try {
+      this.#keyPair = await crypto.subtle.generateKey(
+        {
+          name: "RSA-OAEP",
+          modulusLength: 2048,
+          publicExponent: new Uint8Array([1, 0, 1]),
+          hash: "SHA-256",
+        },
+        true,
+        ["encrypt", "decrypt"]
+      );
+      console.log("Encryption keys generated");
+    } catch (err) {
+      console.error("Failed to generate encryption keys:", err);
+    }
+  }
 
-		// Listen for color scheme changes
-		window
-			.matchMedia("(prefers-color-scheme: dark)")
-			.addEventListener("change", () => this.setFavicon());
-	}
+  async exportPublicKey() {
+    try {
+      const exported = await crypto.subtle.exportKey(
+        "spki",
+        this.#keyPair.publicKey
+      );
+      const exportedAsBase64 = this.#arrayBufferToBase64(exported);
+      const pemExported = `-----BEGIN PUBLIC KEY-----\n${exportedAsBase64}\n-----END PUBLIC KEY-----`;
+      return btoa(pemExported);
+    } catch (err) {
+      console.error("Failed to export public key:", err);
+      throw err;
+    }
+  }
 
-	/**
-	 * Set favicon based on user's color scheme preference
-	 */
-	setFavicon() {
-		const isDarkMode = window.matchMedia(
-			"(prefers-color-scheme: dark)",
-		).matches;
+  async decryptPassword(encryptedBase64) {
+    try {
+      const encryptedData = this.#base64ToArrayBuffer(encryptedBase64);
+      const decrypted = await crypto.subtle.decrypt(
+        {
+          name: "RSA-OAEP",
+        },
+        this.#keyPair.privateKey,
+        encryptedData
+      );
+      return new TextDecoder().decode(decrypted);
+    } catch (err) {
+      console.error("Failed to decrypt password:", err);
+      throw err;
+    }
+  }
 
-		if (isDarkMode) {
-			// Dark theme: use light logo for contrast
-			this.favicon.href = "/static/light_logo.svg";
-		} else {
-			// Light theme: use dark logo for contrast
-			this.favicon.href = "/static/dark_logo.svg";
-		}
-	}
+  #arrayBufferToBase64(buffer) {
+    const bytes = new Uint8Array(buffer);
+    let binary = "";
+    for (let i = 0; i < bytes.byteLength; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
+  }
 
-	/**
-	 * Handle user input with debouncing and auto-resize
-	 * @param {Event} event - Input event
-	 */
-	handleUserInput(event) {
-		const textarea = event.target;
+  #base64ToArrayBuffer(base64) {
+    const binaryString = atob(base64);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes.buffer;
+  }
 
-		// Clear existing timeout
-		clearTimeout(this.timeoutId);
+  initializeElements() {
+    this.userInput = document.getElementById("userInput");
+    this.passDisplay = document.getElementById("passDisplay");
+    this.passText = document.getElementById("passText");
+    this.loading = document.getElementById("loading");
+    this.error = document.getElementById("error");
+    this.copiedToast = document.getElementById("copiedToast");
+    this.favicon = document.getElementById("favicon");
+  }
 
-		// Set new timeout for pass generation
-		this.timeoutId = setTimeout(() => {
-			this.generatePass(textarea.value);
-		}, 1000);
+  setupEventListeners() {
+    this.userInput.addEventListener("input", (event) => {
+      this.handleUserInput(event);
+    });
 
-		// Auto-resize textarea
-		this.autoResizeTextarea(textarea);
-	}
+    window
+      .matchMedia("(prefers-color-scheme: dark)")
+      .addEventListener("change", () => this.setFavicon());
+  }
 
-	/**
-	 * Auto-resize textarea based on content
-	 * @param {HTMLTextAreaElement} textarea - The textarea element
-	 */
-	autoResizeTextarea(textarea) {
-		textarea.style.height = "auto";
-		const maxHeight = window.innerWidth <= 640 ? 160 : 200;
-		const newHeight = Math.min(textarea.scrollHeight, maxHeight);
-		textarea.style.height = newHeight + "px";
+  setFavicon() {
+    const isDarkMode = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
 
-		if (textarea.scrollHeight > maxHeight) {
-			textarea.style.overflowY = "auto";
-		} else {
-			textarea.style.overflowY = "hidden";
-		}
-	}
+    if (isDarkMode) {
+      this.favicon.href = "/static/light_logo.svg";
+    } else {
+      this.favicon.href = "/static/dark_logo.svg";
+    }
+  }
 
-	/**
-	 * Show error message to user
-	 * @param {string} message - Error message to display
-	 */
-	showError(message) {
-		this.error.textContent = message;
-		this.error.classList.add("show");
-	}
+  handleUserInput(event) {
+    const textarea = event.target;
+    clearTimeout(this.#timeoutId);
 
-	/**
-	 * Hide error message
-	 */
-	hideError() {
-		this.error.classList.remove("show");
-	}
+    this.#timeoutId = setTimeout(() => {
+      this.generatePass(textarea.value);
+    }, 1000);
 
-	/**
-	 * Show loading indicator
-	 */
-	showLoading() {
-		this.loading.classList.add("show");
-		this.hideError();
-		this.copiedToast.classList.remove("show");
-	}
+    this.autoResizeTextarea(textarea);
+  }
 
-	/**
-	 * Hide loading indicator
-	 */
-	hideLoading() {
-		this.loading.classList.remove("show");
-	}
+  autoResizeTextarea(textarea) {
+    textarea.style.height = "auto";
+    const maxHeight = window.innerWidth <= 640 ? 160 : 200;
+    const newHeight = Math.min(textarea.scrollHeight, maxHeight);
+    textarea.style.height = newHeight + "px";
 
-	/**
-	 * Show copied indicator with auto-hide
-	 */
-	showCopiedIndicator() {
-		this.copiedToast.classList.add("show");
-		setTimeout(() => {
-			this.copiedToast.classList.remove("show");
-		}, 1500);
-	}
+    if (textarea.scrollHeight > maxHeight) {
+      textarea.style.overflowY = "auto";
+    } else {
+      textarea.style.overflowY = "hidden";
+    }
+  }
 
-	/**
-	 * Copy text to clipboard using legacy method for broader compatibility
-	 * @param {string} text - Text to copy
-	 */
-	copyToClipboard(text) {
-		const activeElement = document.activeElement;
-		const textarea = document.createElement("textarea");
-		textarea.value = text;
-		textarea.style.position = "fixed";
-		textarea.style.opacity = "0";
-		document.body.appendChild(textarea);
-		textarea.select();
-		document.execCommand("copy");
-		document.body.removeChild(textarea);
+  showError(message) {
+    this.error.textContent = message;
+    this.error.classList.add("show");
+  }
 
-		// Restore focus if it was on the user input
-		if (activeElement === this.userInput) {
-			this.userInput.focus();
-		}
-	}
+  hideError() {
+    this.error.classList.remove("show");
+  }
 
-	/**
-	 * Generate password/passphrase via API call
-	 * @param {string} input - User input description
-	 */
-	async generatePass(input) {
-		if (!input.trim()) {
-			this.transitionToPlaceholder();
-			this.hideLoading();
-			this.hideError();
-			return;
-		}
+  showLoading() {
+    this.loading.classList.add("show");
+    this.hideError();
+    this.copiedToast.classList.remove("show");
+  }
 
-		this.showLoading();
+  hideLoading() {
+    this.loading.classList.remove("show");
+  }
 
-		try {
-			const response = await fetch("/generate", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({ input: input }),
-			});
+  showCopiedIndicator() {
+    this.copiedToast.classList.add("show");
+    setTimeout(() => {
+      this.copiedToast.classList.remove("show");
+    }, 1500);
+  }
 
-			const data = await response.json();
-			this.hideLoading();
+  async copyToClipboard(text) {
+    const activeElement = document.activeElement;
 
-			if (data.error) {
-				this.showError(data.error);
-				this.transitionToPlaceholder();
-			} else {
-				this.hideError();
-				this.transitionToPass(data.pass);
-				this.copyToClipboard(data.pass);
-				this.showCopiedIndicator();
-			}
-		} catch (err) {
-			this.hideLoading();
-			this.showError("Failed to generate pass. Please try again.");
-			console.error("API Error:", err);
-		}
-	}
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (err) {
+      console.warn("Clipboard API failed, using fallback:", err);
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+    }
 
-	/**
-	 * Transition display back to placeholder state
-	 */
-	transitionToPlaceholder() {
-		const wasEmpty = this.passDisplay.classList.contains("empty");
+    if (activeElement === this.userInput) {
+      this.userInput.focus();
+    }
+  }
 
-		if (!wasEmpty) {
-			// Pass to placeholder transition
-			this.passDisplay.classList.add("transitioning");
-			this.passText.classList.add("transitioning");
-			this.passText.classList.add("hide");
-			this.passText.classList.remove("show");
+  async generatePass(input) {
+    if (!input.trim()) {
+      this.transitionToPlaceholder();
+      this.hideLoading();
+      this.hideError();
+      return;
+    }
 
-			setTimeout(() => {
-				this.passText.textContent = "your pass will appear here";
-				this.passDisplay.classList.add("empty");
-				this.passDisplay.classList.remove("transitioning");
-				this.passText.classList.remove("transitioning");
-				this.passText.classList.remove("hide");
-				this.passText.classList.remove("show");
-			}, 250);
-		} else {
-			// Already placeholder, just update text if needed
-			this.passText.textContent = "your pass will appear here";
-			this.passText.classList.remove("hide", "show");
-		}
-	}
+    if (!this.#keyPair) {
+      this.showError("Encryption not ready. Please wait and try again.");
+      return;
+    }
 
-	/**
-	 * Transition display to show generated pass
-	 * @param {string} pass - Generated password/passphrase
-	 */
-	transitionToPass(pass) {
-		const wasEmpty = this.passDisplay.classList.contains("empty");
+    this.showLoading();
 
-		if (wasEmpty) {
-			// Placeholder to pass transition
-			this.passDisplay.classList.add("transitioning");
-			this.passText.classList.add("transitioning");
-			this.passText.classList.add("hide");
+    try {
+      const publicKey = await this.exportPublicKey();
 
-			setTimeout(() => {
-				this.passText.textContent = pass;
-				this.passDisplay.classList.remove("empty");
-				this.passText.classList.remove("hide");
-				this.passText.classList.add("show");
+      const response = await fetch("/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          input,
+          publicKey,
+        }),
+      });
 
-				setTimeout(() => {
-					this.passDisplay.classList.remove("transitioning");
-					this.passText.classList.remove("transitioning");
-				}, 300);
-			}, 150);
-		} else {
-			// Pass to pass transition
-			this.passDisplay.classList.add("transitioning");
-			this.passText.classList.add("transitioning");
-			this.passText.classList.add("hide");
-			this.passText.classList.remove("show");
+      const data = await response.json();
+      this.hideLoading();
 
-			setTimeout(() => {
-				this.passText.textContent = pass;
-				this.passText.classList.remove("hide");
-				this.passText.classList.add("show");
+      if (data.error) {
+        this.showError(data.error);
+        this.transitionToPlaceholder();
+      } else if (data.encryptedPass) {
+        const decryptedPass = await this.decryptPassword(data.encryptedPass);
+        this.hideError();
+        this.transitionToPass(decryptedPass);
+        await this.copyToClipboard(decryptedPass);
+        this.showCopiedIndicator();
+      } else {
+        this.showError("Invalid response from server.");
+        this.transitionToPlaceholder();
+      }
+    } catch (err) {
+      this.hideLoading();
+      this.showError("Failed to generate pass. Please try again.");
+      console.error("API Error:", err);
+    }
+  }
 
-				setTimeout(() => {
-					this.passDisplay.classList.remove("transitioning");
-					this.passText.classList.remove("transitioning");
-				}, 300);
-			}, 250);
-		}
-	}
+  transitionToPlaceholder() {
+    if (this.passDisplay.classList.contains("empty")) {
+      this.passText.textContent = "your pass will appear here";
+      this.passText.classList.remove("hide", "show");
+      return;
+    }
+
+    this.passDisplay.classList.add("transitioning");
+    this.passText.classList.add("transitioning", "hide");
+    this.passText.classList.remove("show");
+
+    setTimeout(() => {
+      this.passText.textContent = "your pass will appear here";
+      this.passDisplay.classList.add("empty");
+      this.passDisplay.classList.remove("transitioning");
+      this.passText.classList.remove("transitioning", "hide");
+    }, 250);
+  }
+
+  transitionToPass(pass) {
+    const wasEmpty = this.passDisplay.classList.contains("empty");
+    const delay = wasEmpty ? 150 : 250;
+
+    this.passDisplay.classList.add("transitioning");
+    this.passText.classList.add("transitioning", "hide");
+    this.passText.classList.remove("show");
+
+    setTimeout(() => {
+      this.passText.textContent = pass;
+      this.passDisplay.classList.remove("empty");
+      this.passText.classList.remove("hide");
+      this.passText.classList.add("show");
+
+      setTimeout(() => {
+        this.passDisplay.classList.remove("transitioning");
+        this.passText.classList.remove("transitioning");
+      }, 300);
+    }, delay);
+  }
 }
 
-// Initialize application when DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
-	new PassAI();
+  new PassAI();
 });
