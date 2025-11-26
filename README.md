@@ -119,7 +119,7 @@ The application will be available at `localhost:5000`.
 
 **Demo:**
 
-You can try the live demo at: [https://dub.sh/passai/](https://dub.sh/passai/)
+You can try the live demo at: [https://passai.up.railway.app/](https://passai.up.railway.app/)
 
 ### 2. Example Integration
 
